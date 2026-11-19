@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PhishGuard: Phishing URL &amp; Email Checker</title>
+  <meta name="description" content="Paste a suspicious link or email and PhishGuard shows how likely it is to be phishing, and why. Built for phishing common in India. 100% private: runs in your browser." />
+  <meta name="theme-color" content="#050b1c" />
+  <!-- Favicon as an inline SVG so we don't need an extra image file -->
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%232dd4bf' d='M12 2 4 5v6c0 5 3.4 9.4 8 11 4.6-1.6 8-6 8-11V5l-8-3z'/%3E%3Cpath fill='none' stroke='%23050b1c' stroke-width='2' stroke-linecap='round' d='M12 7.5v6.2a2.7 2.7 0 0 1-5.4 0M6.6 13.7l-1.2-1.5'/%3E%3C/svg%3E" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- Reusable icon: a shield with a fishing hook inside ("phishing" = fishing). Use with <svg><use href="#icon-hook"/></svg> -->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <symbol id="icon-hook" viewBox="0 0 24 24">
+      <path d="M12 2 4 5v6c0 5 3.4 9.4 8 11 4.6-1.6 8-6 8-11V5l-8-3z" fill="currentColor" opacity=".18"/>
+      <path d="M12 2 4 5v6c0 5 3.4 9.4 8 11 4.6-1.6 8-6 8-11V5l-8-3z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
+      <circle cx="12" cy="7" r="1.1" fill="currentColor"/>
+      <path d="M12 8.4v5.4a2.8 2.8 0 0 1-5.6 0M6.4 13.8l-1.3-1.6" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/>
+    </symbol>
+  </svg>
+
+  <a class="skip-link" href="#checker">Skip to the checker</a>
+
+  <!-- ===================== HEADER ===================== -->
+  <header class="site-header">
+    <div class="container header-inner">
+      <a class="brand" href="#top" aria-label="PhishGuard home">
+        <svg class="brand-icon" aria-hidden="true"><use href="#icon-hook"/></svg>
+        <span class="brand-name">Phish<span>Guard</span></span>
+      </a>
+
+      <nav class="main-nav" id="mainNav" aria-label="Main navigation">
+        <a href="#checker">Checker</a>
+        <a href="#how-it-works">How it works</a>
+        <a href="#tips">Phishing tips</a>
+        <a href="#report">Report phishing</a>
+      </nav>
+
+      <div class="header-actions">
+        <button id="themeToggle" class="icon-btn" type="button" aria-label="Switch to light mode" title="Toggle dark / light mode">
+          <span class="theme-icon" aria-hidden="true">☀️</span>
+        </button>
+        <button id="menuToggle" class="icon-btn menu-btn" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="mainNav">
+          <span aria-hidden="true">☰</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main id="top">
+
+    <!-- ===================== HERO ===================== -->
+    <section class="hero">
+      <div class="container hero-inner">
+        <p class="eyebrow">🇮🇳 Built for phishing common in India: SBI, HDFC, ICICI, Paytm, Income Tax, Aadhaar…</p>
+        <h1>Is that link or email a trap?<br /><span class="gradient-text">Check it before you click.</span></h1>
+        <p class="hero-sub">
+          Paste a suspicious URL or the text of a suspicious email. PhishGuard looks for the tricks phishers use,
+          gives a risk score, and explains every red flag in simple language.
+        </p>
+        <p class="privacy-pill">
+          🔒 <strong>100% private &amp; safe.</strong> Everything runs inside your browser. Nothing you paste is stored or sent anywhere,
+          and PhishGuard <strong>never opens or visits</strong> the link. It only reads the text.
+        </p>
+      </div>
+    </section>
+
+    <!-- ===================== CHECKER (tabs) ===================== -->
+    <section id="checker" class="section checker-section">
+      <div class="container">
+        <div class="card checker-card reveal">
+
+          <!-- Tab buttons -->
+          <div class="tabs" role="tablist" aria-label="Choose what to check">
+            <button id="tabUrl" class="tab active" role="tab" aria-selected="true" aria-controls="panelUrl" type="button">🔗 URL Checker</button>
+            <button id="tabEmail" class="tab" role="tab" aria-selected="false" aria-controls="panelEmail" tabindex="-1" type="button">✉️ Email Checker</button>
+          </div>
+
+          <!-- TAB 1: URL CHECKER -->
+          <div id="panelUrl" class="tab-panel" role="tabpanel" aria-labelledby="tabUrl">
+            <label for="urlInput" class="field-label">Paste the suspicious URL here</label>
+            <input id="urlInput" type="text" inputmode="url" autocomplete="off" autocapitalize="off" spellcheck="false" maxlength="2000"
+              placeholder="e.g. http://sbi-kyc-update.xyz/login" />
+            <p class="muted small field-note">The link is only analysed as text. It is never opened, loaded or visited.</p>
+            <p id="urlError" class="input-error" role="alert"></p>
+            <div class="btn-row">
+              <button id="checkUrlBtn" class="btn btn-primary" type="button">
+                <svg class="btn-icon" aria-hidden="true"><use href="#icon-hook"/></svg> Check URL
+              </button>
+              <button id="clearUrlBtn" class="btn btn-ghost" type="button">Clear</button>
+            </div>
+          </div>
+
+          <!-- TAB 2: EMAIL CHECKER -->
+          <div id="panelEmail" class="tab-panel" role="tabpanel" aria-labelledby="tabEmail" hidden>
+            <div class="form-grid">
+              <div>
+                <label for="emailFrom" class="field-label">Sender (the “From” line)</label>
+                <input id="emailFrom" type="text" autocomplete="off" spellcheck="false" maxlength="300"
+                  placeholder='e.g. SBI Bank <alerts@sbi-support.xyz>' />
+              </div>
+              <div>
+                <label for="emailSubject" class="field-label">Subject</label>
+                <input id="emailSubject" type="text" autocomplete="off" maxlength="300" placeholder="e.g. Your account has been suspended" />
+              </div>
+            </div>
+            <label for="emailBody" class="field-label">Email body (plain text, or paste the HTML to also catch fake link text)</label>
+            <textarea id="emailBody" rows="9" maxlength="20000" spellcheck="false"
+              placeholder="Paste the whole email here..."></textarea>
+            <p id="emailError" class="input-error" role="alert"></p>
+            <div class="btn-row">
+              <button id="checkEmailBtn" class="btn btn-primary" type="button">
+                <svg class="btn-icon" aria-hidden="true"><use href="#icon-hook"/></svg> Check Email
+              </button>
+              <button id="clearEmailBtn" class="btn btn-ghost" type="button">Clear</button>
+              <span class="muted hint">Links inside the email are checked too, but never opened.</span>
+            </div>
+          </div>
+
+          <!-- Try an example (buttons are created by script.js from the EXAMPLES array) -->
+          <div class="examples">
+            <h3>Try an example</h3>
+            <p class="muted">Click one to fill the form, then press the Check button.</p>
+            <div id="exampleButtons" class="chip-row"></div>
+          </div>
+        </div>
+
+        <!-- ---------- RESULTS (hidden until something is checked) ---------- -->
+        <div id="results" class="results" hidden aria-live="polite">
+
+          <!-- Score card: ring meter + badge + summary -->
+          <div class="card score-card">
+            <div class="meter" aria-hidden="true">
+              <svg viewBox="0 0 120 120" class="meter-svg">
+                <circle class="meter-track" cx="60" cy="60" r="52"></circle>
+                <circle class="meter-fill" id="meterFill" cx="60" cy="60" r="52"></circle>
+              </svg>
+              <div class="meter-text"><span id="riskPercent">0</span><small>%</small></div>
+            </div>
+            <div class="score-info">
+              <span id="riskBadge" class="badge">Risk</span>
+              <h2 id="riskHeadline">Result</h2>
+              <p id="riskSummary" class="muted"></p>
+              <div class="bar" role="progressbar" aria-label="Phishing risk score" aria-valuemin="0" aria-valuemax="100" id="riskBar">
+                <div class="bar-fill" id="barFill"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Shown ONLY when no red flags are found -->
+          <div class="card safe-card" id="safeCard" hidden>
+            <h3>✅ No obvious red flags</h3>
+            <p>
+              PhishGuard didn't find any of the common phishing tricks. That's a good sign, but
+              <strong>no tool is 100% accurate</strong>, and <strong>the link may still be unsafe</strong>.
+              A brand-new phishing site can look perfectly normal to a rule-based checker.
+            </p>
+            <ul class="check-list">
+              <li>If you weren't expecting it, don't click. Go to the website by typing its address yourself.</li>
+              <li>For extra checking, paste the link into Google Safe Browsing or VirusTotal yourself (see the Report section).</li>
+              <li>Never enter passwords, OTPs or card details after clicking a link from a message.</li>
+            </ul>
+          </div>
+
+          <!-- Parsed details (URL parts, or email + links) -->
+          <div class="card" id="parsedCard">
+            <h3 id="parsedTitle">🧩 How this was built</h3>
+            <div id="parsedBody"></div>
+          </div>
+
+          <!-- Red flags -->
+          <div class="card" id="flagsCard">
+            <h3>🚩 Red flags found</h3>
+            <ul id="flagList" class="flag-list"></ul>
+          </div>
+
+          <!-- What you should do -->
+          <div class="card advice-card" id="adviceCard">
+            <h3>🛡️ What you should do</h3>
+            <ul id="adviceList" class="check-list"></ul>
+            <p class="advice-cta">
+              Already entered a password or OTP, or lost money? Call <a href="tel:1930"><strong>1930</strong></a> immediately and report at
+              <a href="https://cybercrime.gov.in" target="_blank" rel="noopener noreferrer">cybercrime.gov.in</a>.
+            </p>
+          </div>
+
+          <p class="disclaimer">
+            ⚠️ PhishGuard is rule-based. It can't check a website's live reputation or how old a domain is, so it can miss new attacks
+            and sometimes flag genuine messages. Use it as a helper, not as the final word.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== HOW IT WORKS ===================== -->
+    <section id="how-it-works" class="section">
+      <div class="container">
+        <h2 class="section-title reveal">How it works</h2>
+        <p class="section-sub reveal">No AI black box. Just clear rules that anyone can read, understand and improve.</p>
+
+        <div class="steps">
+          <div class="card step reveal"><span class="step-num">1</span><h3>Paste</h3><p>Paste a URL, or the sender, subject and body of an email. It stays on your device.</p></div>
+          <div class="card step reveal"><span class="step-num">2</span><h3>Take apart</h3><p>The URL is split into protocol, subdomain, domain and path using your browser's built-in <code>URL</code> tool. Emails are split into sender, text and links.</p></div>
+          <div class="card step reveal"><span class="step-num">3</span><h3>Score</h3><p>Each rule has a point value. Points of the red flags found are added up and turned into a 0–100% risk score.</p></div>
+          <div class="card step reveal"><span class="step-num">4</span><h3>Explain</h3><p>You see the risk level, every red flag in plain English, the suspicious part highlighted, and what to do next.</p></div>
+        </div>
+
+        <div class="rules-grid">
+          <div class="card reveal">
+            <h3>🔗 URL rules</h3>
+            <p class="muted small">Generated live from <code>URL_RULES</code> in <code>script.js</code>.</p>
+            <ul id="urlRulesList" class="rules-list"></ul>
+          </div>
+          <div class="card reveal">
+            <h3>✉️ Email rules</h3>
+            <p class="muted small">Generated live from <code>EMAIL_RULES</code> in <code>script.js</code>.</p>
+            <ul id="emailRulesList" class="rules-list"></ul>
+          </div>
+        </div>
+        <p class="muted small center reveal">
+          Score guide: <strong class="c-safe">0–24% Safe-looking</strong> · <strong class="c-sus">25–59% Suspicious</strong> · <strong class="c-bad">60–100% Likely phishing</strong>
+        </p>
+      </div>
+    </section>
+
+    <!-- ===================== PHISHING TIPS ===================== -->
+    <section id="tips" class="section">
+      <div class="container">
+        <h2 class="section-title reveal">How to spot phishing</h2>
+        <p class="section-sub reveal">Eight habits that stop most attacks.</p>
+
+        <div class="grid-cards">
+          <article class="card tip-card reveal"><div class="type-icon">🎯</div><h3>1. Read the real domain</h3><p>The real website is the part just before the first single <code>/</code>, at the very end of the name. In <code>sbi.co.in.verify-now.xyz</code> the real site is <code>verify-now.xyz</code>, not SBI.</p></article>
+          <article class="card tip-card reveal"><div class="type-icon">🔡</div><h3>2. Spot lookalikes</h3><p>Phishers swap letters: <code>amaz0n</code> (zero), <code>paypa1</code> (one), <code>hdfcbamk</code> (m for n). Read the name slowly, letter by letter.</p></article>
+          <article class="card tip-card reveal"><div class="type-icon">🔒</div><h3>3. A padlock is not proof</h3><p>Fake sites can use HTTPS too. HTTPS only means the connection is private, not that the site is honest. But <em>no</em> HTTPS on a login page is a clear warning.</p></article>
+          <article class="card tip-card reveal"><div class="type-icon">✂️</div><h3>4. Distrust short links</h3><p>bit.ly, tinyurl and similar hide the real destination. Don't tap a short link in a bank, tax or delivery message.</p></article>
+          <article class="card tip-card reveal"><div class="type-icon">🎭</div><h3>5. Check the sender's address</h3><p>Anyone can set the display name to “SBI Bank”. Look at the actual address after the <code>@</code>. A bank won't write from gmail.com.</p></article>
+          <article class="card tip-card reveal"><div class="type-icon">⏰</div><h3>6. Beware of panic</h3><p>“Account suspended”, “legal action”, “verify in 24 hours”. Urgency is used to stop you from thinking. Slow down.</p></article>
+          <article class="card tip-card reveal"><div class="type-icon">🔑</div><h3>7. Never share secrets</h3><p>No bank, tax office or company asks for your password, OTP, PIN, CVV, Aadhaar or PAN by email or SMS.</p></article>
+          <article class="card tip-card reveal"><div class="type-icon">📎</div><h3>8. Don't open surprise attachments</h3><p>.zip, .exe, .apk, .html and macro-enabled documents can install malware. Be extra careful with “invoice” or “refund” files.</p></article>
+        </div>
+
+        <!-- Safe vs fake visual examples. These are plain text on purpose, never clickable links. -->
+        <div class="card reveal compare-card">
+          <h3>👀 Safe vs fake: can you see the difference?</h3>
+          <div class="compare-list">
+            <div class="compare-row">
+              <div class="compare safe"><span class="tag">✅ Real</span><code>https://www.<b>sbi.co.in</b>/</code></div>
+              <div class="compare fake"><span class="tag">❌ Fake</span><code>http://<b>sbi-kyc-update.xyz</b>/login</code></div>
+              <p class="muted small">No “s” in http, extra words glued to the bank name, and a cheap <code>.xyz</code> ending.</p>
+            </div>
+            <div class="compare-row">
+              <div class="compare safe"><span class="tag">✅ Real</span><code>https://www.<b>amazon.in</b>/</code></div>
+              <div class="compare fake"><span class="tag">❌ Fake</span><code>https://www.<b>amaz0n.in</b>/</code></div>
+              <p class="muted small">A zero (0) instead of the letter “o”.</p>
+            </div>
+            <div class="compare-row">
+              <div class="compare safe"><span class="tag">✅ Real</span><code>https://www.<b>hdfcbank.com</b>/</code></div>
+              <div class="compare fake"><span class="tag">❌ Fake</span><code>https://hdfcbank.com.<b>secure-login.top</b>/</code></div>
+              <p class="muted small">The bank name is only a subdomain. The real site is <code>secure-login.top</code>.</p>
+            </div>
+            <div class="compare-row">
+              <div class="compare safe"><span class="tag">✅ Real</span><code>https://www.<b>incometax.gov.in</b>/</code></div>
+              <div class="compare fake"><span class="tag">❌ Fake</span><code>https://<b>incometax-refund.click</b>/claim</code></div>
+              <p class="muted small">Indian government sites end in <code>.gov.in</code> or <code>.nic.in</code>.</p>
+            </div>
+            <div class="compare-row">
+              <div class="compare safe"><span class="tag">✅ Real</span><code>https://<b>paytm.com</b>/</code></div>
+              <div class="compare fake"><span class="tag">❌ Fake</span><code>http://<b>paytm-reward.top</b>/offer</code></div>
+              <p class="muted small">“Reward” and “offer” pages on look-alike domains are bait.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== REPORT PHISHING ===================== -->
+    <section id="report" class="section">
+      <div class="container">
+        <h2 class="section-title reveal">Report phishing</h2>
+        <p class="section-sub reveal">Reporting protects you and others. If money is involved, <strong>act fast</strong>.</p>
+
+        <div class="grid-cards report-grid">
+          <article class="card report-card report-main reveal">
+            <div class="type-icon">📞</div>
+            <h3>Cyber Crime Helpline</h3>
+            <a class="big-number" href="tel:1930">1930</a>
+            <p>Call immediately if you entered banking details or lost money. Keep transaction details ready.</p>
+          </article>
+          <article class="card report-card reveal">
+            <div class="type-icon">🌐</div>
+            <h3>cybercrime.gov.in</h3>
+            <p>The National Cyber Crime Reporting Portal. File a complaint online for phishing and other cyber fraud.</p>
+            <a class="btn btn-primary" href="https://cybercrime.gov.in" target="_blank" rel="noopener noreferrer">Open the portal ↗</a>
+          </article>
+          <article class="card report-card reveal">
+            <div class="type-icon">🛰️</div>
+            <h3>CERT-In</h3>
+            <p>India's national cyber-security agency takes phishing incident reports. Details are on the CERT-In website (cert-in.org.in).</p>
+            <a class="btn btn-ghost" href="https://www.cert-in.org.in" target="_blank" rel="noopener noreferrer">Open CERT-In ↗</a>
+          </article>
+          <article class="card report-card reveal">
+            <div class="type-icon">📨</div>
+            <h3>Your bank or email provider</h3>
+            <p>Forward the phishing email to the bank it pretends to be (find its official “report phishing” address on its real website). In Gmail use <em>⋮ → Report phishing</em>; Outlook and Yahoo have similar options.</p>
+          </article>
+        </div>
+
+        <div class="card reveal verify-card">
+          <h3>🔎 Want a second opinion?</h3>
+          <p>
+            You can check a link manually on these free services. Copy the link and paste it into their page yourself.
+            PhishGuard itself <strong>never contacts</strong> any website or service.
+          </p>
+          <div class="btn-row">
+            <a class="btn btn-ghost" href="https://transparencyreport.google.com/safe-browsing/search" target="_blank" rel="noopener noreferrer">Google Safe Browsing ↗</a>
+            <a class="btn btn-ghost" href="https://www.virustotal.com/" target="_blank" rel="noopener noreferrer">VirusTotal ↗</a>
+          </div>
+          <p class="muted small">Never click the suspicious link itself to “test” it.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ===================== FOOTER ===================== -->
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <div>
+        <a class="brand" href="#top" aria-label="Back to top">
+          <svg class="brand-icon" aria-hidden="true"><use href="#icon-hook"/></svg>
+          <span class="brand-name">Phish<span>Guard</span></span>
+        </a>
+        <p class="muted small footer-text">🔒 Privacy: all analysis happens locally in your browser. Nothing is stored, logged or sent to any server, and no link is ever opened.</p>
+      </div>
+      <p class="muted small footer-text">
+        PhishGuard is an educational project, not affiliated with any bank or government body, and it cannot guarantee that a link or email is safe.
+        Helpline: <a href="tel:1930">1930</a> · <a href="https://cybercrime.gov.in" target="_blank" rel="noopener noreferrer">cybercrime.gov.in</a>
+      </p>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
